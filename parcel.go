@@ -57,7 +57,7 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 		client,
 	)
 	if err != nil {
-		return []Parcel{}, err
+		return nil, err
 	}
 	defer rows.Close()
 	// заполните срез Parcel данными из таблицы
@@ -69,24 +69,25 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 			&p.Client,
 			&p.Status,
 			&p.Address,
-			&p.CreatedAt)
+			&p.CreatedAt,
+		)
 		if err != nil {
-			return []Parcel{}, err
+			return nil, err
 		}
 		res = append(res, p)
 	}
 	if err := rows.Err(); err != nil {
-		return []Parcel{}, err
+		return nil, err
 	}
 
 	return res, nil
-}//может быть косяк
+}
 
 func (s ParcelStore) SetStatus(number int, status string) error {
 	// реализуйте обновление статуса в таблице parcel
-_, err := s.db.Exec("UPDATE parcel SET status = ? WHERE number = ?",
-	status,
-	number,
+	_, err := s.db.Exec("UPDATE parcel SET status = ? WHERE number = ?",
+		status,
+		number,
 	)
 	if err != nil {
 		return err
@@ -97,14 +98,14 @@ _, err := s.db.Exec("UPDATE parcel SET status = ? WHERE number = ?",
 func (s ParcelStore) SetAddress(number int, address string) error {
 	// реализуйте обновление адреса в таблице parcel
 	// менять адрес можно только если значение статуса registered
-_, err := s.db.Exec("UPDATE parcel SET address = ? WHERE number = ? AND status = ?",
-	address,
-	number,
-	ParcelStatusRegistered,
+	_, err := s.db.Exec("UPDATE parcel SET address = ? WHERE number = ? AND status = ?",
+		address,
+		number,
+		ParcelStatusRegistered,
 	)
 	if err != nil {
 		return err
-}
+	}
 	return nil
 }
 
